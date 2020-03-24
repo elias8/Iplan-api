@@ -10,8 +10,8 @@ const bearerToken = require('express-bearer-token');
 
 const router = require('../routes');
 const log = require('../config/logger');
-const {baseUrl} = require('./variables');
 const {errorHandler} = require('./celebrate');
+const baseUrl = process.env.BASE_URL;
 
 const app = express();
 
