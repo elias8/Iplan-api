@@ -2,7 +2,9 @@ require('dotenv').config();
 const log = require('./src/config/logger');
 const app = require('./src/config/express');
 const mongoose = require('./src/config/mongoose');
-const {env, port} = require('./src/config/variables');
+
+const env = process.env.NODE_ENV;
+const port = process.env.PORT;
 
 (async () => {
 	const isDataBaseConnected = await mongoose.connect();
