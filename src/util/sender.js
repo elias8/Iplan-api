@@ -32,15 +32,16 @@ const sender = (res, {type, customData, data, message, status = 200}) => {
             break;
         default:
         case ResponseType.DATA:
-            sendData(status, data, res);
+            sendData(status, data, message, res);
             break;
     }
 };
 
-const sendData = (statusCode, data, res) => {
+const sendData = (statusCode, data, message, res) => {
     let payload = {
         success: true,
         statusCode: statusCode,
+        message: message,
         data: data
     };
 
