@@ -22,8 +22,12 @@ function makeTaskDatabase(database) {
 
     async function findById(id) {
         try {
-            const task = await database.findById(id);
-            return new SuccessResult(task);
+            const result = await database.findById(id);
+
+            if (result) return new SuccessResult(result);
+
+            const message = `Couldn't find a Task with id ${id}`;
+            return new ErrorResult(message);
         } catch (error) {
             const message = `Couldn't find a Task with id ${id}`;
             return new ErrorResult(message);
@@ -46,7 +50,7 @@ function makeTaskDatabase(database) {
         return new SuccessResult(tasks);
     }
 
-    async function updateOne(query, updates) {
+    async function updateOne({query, updates}) {
         try {
             const result = await database.updateOne(query, updates);
             if (result.n < 1 && result.nModified < 1) {
@@ -56,7 +60,7 @@ function makeTaskDatabase(database) {
 
             const updatedTask = await findOne(query);
             const message = 'Task update successfully';
-            return updatedTask.withMessage(message)
+            return updatedTask.withMessage(message);
         } catch (error) {
             const message = 'Could not update task';
             return new ErrorResult(message);

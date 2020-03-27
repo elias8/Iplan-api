@@ -65,7 +65,7 @@ describe('TaskDal', () => {
     });
 
     describe('findById', () => {
-        it('should get a task by it\'s id', async () => {
+        it('should get a task by id', async () => {
             // Arrange
             const task = {
                 title: 'task title',
@@ -83,7 +83,20 @@ describe('TaskDal', () => {
             expect(savedTask).toMatchObject(task);
         });
 
-        it('should return error when couldn\'t find a task with provided id', async () => {
+        it('should return error when id doesn\'t match any task id', async () => {
+            // ARRANGE
+            const taskId = '5e7da13ff820d67f179d0654';
+            const message = `Couldn't find a Task with id ${taskId}`;
+
+            // ACT
+            const result = await taskDal.findById(taskId);
+
+            // ASSERT
+            expect(result).toBeInstanceOf(ErrorResult);
+            expect(result.message).toEqual(message);
+        });
+
+        it('should return error when invalid id is provided', async () => {
             // ARRANGE
             const fakeId = 'fake-id';
             const errorMessage = `Couldn't find a Task with id ${fakeId}`;
@@ -144,7 +157,7 @@ describe('TaskDal', () => {
             const message = 'Task update successfully';
 
             // ACT
-            const result = await taskDal.updateOne(query, updates);
+            const result = await taskDal.updateOne({query: query, updates: updates});
 
             // ASSERT
             expect(result).toBeInstanceOf(SuccessResult);
@@ -158,7 +171,7 @@ describe('TaskDal', () => {
             const message = 'Unable to find a task to be updated';
 
             // ACT
-            const result = await taskDal.updateOne(query);
+            const result = await taskDal.updateOne({query: query});
 
             // ASSERT
             expect(result).toBeInstanceOf(ErrorResult);
@@ -176,7 +189,7 @@ describe('TaskDal', () => {
             };
 
             // ACT
-            const result = await taskDal.updateOne(query, task);
+            const result = await taskDal.updateOne({query: query, updates: task});
 
             // ASSERT
             expect(result).toBeInstanceOf(ErrorResult);
