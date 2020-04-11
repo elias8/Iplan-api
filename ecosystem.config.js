@@ -5,7 +5,7 @@ module.exports = {
         instance: 'max',
         autorestart: true,
         restart_delay: 3000,
-        watch: false,
+        watch: true,
         env: {
             NODE_ENV: 'development'
         },
