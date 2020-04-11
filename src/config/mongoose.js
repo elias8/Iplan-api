@@ -1,34 +1,31 @@
 'use strict';
 
-const logger = require('./logger');
+const log = require('./logger');
 const mongoose = require('mongoose');
-const {mongo, env} = require('./variables');
 const mongooseHidden = require('mongoose-hidden');
 
-mongoose.Promise = Promise;
+function makeDatabase() {
+    return Object.freeze({connect});
 
-if (env === 'development') {
-    mongoose.set('debug', true);
+    async function connect(url) {
+        if (process.env.NODE_ENV === 'development') mongoose.set('debug', true);
+        const mongooseOptions = {keepAlive: 1, useNewUrlParser: true, useUnifiedTopology: true};
+        const mongooseHiddenOption = {defaultHidden: {'_id': false, password: true, '__v': true}};
+        const hiddenPlugin = mongooseHidden(mongooseHiddenOption);
+
+        mongoose.Promise = Promise;
+        mongoose.set('useCreateIndex', true);
+        mongoose.plugin(hiddenPlugin);
+        mongoose.connection.on('connected', () => log.i('Database Connected.'));
+
+        try {
+            await mongoose.connect(url, mongooseOptions);
+            return mongoose.connection;
+        } catch (e) {
+            log.e('Unable to connect the database. Please check the database is up and running. Or the connection string.');
+            return false;
+        }
+    }
 }
 
-mongoose.set('useCreateIndex', true);
-
-mongoose.plugin(mongooseHidden({
-    defaultHidden: {'_id': false, password: true, pin: true, '__v': true}
-}));
-
-mongoose.connection.on('connected', () => {
-    logger.i('Database Connected.');
-});
-
-mongoose.connection.on('error', err => {
-    logger.e(`Database Connection Failed. ${err}`);
-});
-
-exports.connect = async () => {
-    await mongoose.connect(mongo.uri, {
-        keepAlive: 1,
-        useNewUrlParser: true,
-    });
-    return mongoose.connection;
-};
+module.exports = () => makeDatabase();
