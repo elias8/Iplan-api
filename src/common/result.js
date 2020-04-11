@@ -1,12 +1,12 @@
 class ErrorResult {
-    constructor({message, status}) {
+    constructor(message = null, {status} = {}) {
         this.status = status;
         this.message = message;
     }
 }
 
 class SuccessResult {
-    constructor({data, type, status, message}) {
+    constructor(data = null, {type, status, message} = {}) {
         this.data = data;
         this.type = type;
         this.status = status;

@@ -1,30 +1,18 @@
 'use strict';
 
-const taskDal = require('./task-dal');
-const {SuccessResult} = require("../../common/result");
+const Task = require('./task-model');
 
-exports.createTask = async (task) => {
-    return await taskDal.create(task);
-};
+const makeTaskDatabase = require('./task-dal');
+const taskDal = makeTaskDatabase(Task);
 
-exports.getAllTasks = async () => {
-    const tasks = await taskDal.findMany({});
-    return new SuccessResult({data: tasks});
-};
+exports.createTask = async (task) => taskDal.insertOne(task);
 
-exports.getTaskById = async (taskId) => {
-    return taskDal.findById({id: taskId});
-};
+exports.getAllTasks = async () => await taskDal.findMany();
+
+exports.getTaskById = async (taskId) => await taskDal.findById(taskId);
 
 exports.updateTaskById = async (taskId, task) => {
-    return taskDal.updateOne({query: {_id: taskId}, value: task});
+    return taskDal.updateOne({query: {_id: taskId}, updates: task});
 };
 
-exports.deleteById = async (taskId) => {
-    const result = await taskDal.deleteOne({_id: taskId});
-
-    return result.fold({
-        onSuccess: () => result.withMessage('Task deleted successfully.'),
-        onError: (error) => error
-    });
-};
+exports.deleteById = async (taskId) => await taskDal.deleteOne({_id: taskId});

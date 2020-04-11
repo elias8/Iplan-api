@@ -7,7 +7,7 @@ const env = {
 	port: process.env.PORT,
 	baseUrl: process.env.BASE_URL,
 	jwtSecret: process.env.JWT_SECRET,
-	mongo: {
+	databaseUrl: {
 		uri: process.env.NODE_ENV === 'test'
 			? process.env.MONGO_URI_TESTS
 			: process.env.MONGO_URI,

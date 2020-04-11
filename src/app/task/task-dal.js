@@ -1,69 +1,111 @@
 'use strict';
 
-const Task = require('./task-model');
 const {ErrorResult} = require("../../common/result");
 const {SuccessResult} = require("../../common/result");
 
-const create = async data => {
-    try {
-        const savedTask = await new Task(data).save();
-        return new SuccessResult({data: savedTask});
-    } catch (error) {
-        return new ErrorResult({message: 'Something went wrong. Please try again'});
+function makeTaskDatabase(database) {
+    return Object.freeze({
+        insertOne,
+        findOne,
+        findById,
+        findMany,
+        updateOne,
+        updateMany,
+        deleteOne,
+        deleteMany,
+    });
+
+    async function insertOne(taskData) {
+        const savedTask = await new database(taskData).save();
+        return new SuccessResult(savedTask);
     }
-};
 
-const findById = async ({id, select}) => {
-    try {
-        const task = await Task.findById(id, select);
-        return new SuccessResult({data: task});
-    } catch (error) {
-        return new ErrorResult({message: `Couldn't find a Task with id ${id}`, status: 404});
-    }
-};
+    async function findById(id) {
+        try {
+            const result = await database.findById(id);
 
-const findMany = ({query, select}) => Task.find(query, select);
+            if (result) return new SuccessResult(result);
 
-const findOne = ({query, select}) => Task.findOne(query, select);
-
-const updateOne = async ({query, value}) => {
-    try {
-        await Task.updateOne(query, value);
-        const updatedTask = await findOne({query: query});
-        return new SuccessResult({data: updatedTask});
-    } catch (error) {
-        return new ErrorResult({message: error});
-    }
-};
-
-const updateMany = ({query, value}) => Task.updateMany(query, value);
-
-const deleteOne = async query => {
-    try {
-        const result = await Task.deleteOne(query);
-        if (result.deletedCount > 0) {
-            return new SuccessResult({});
+            const message = `Couldn't find a Task with id ${id}`;
+            return new ErrorResult(message);
+        } catch (error) {
+            const message = `Couldn't find a Task with id ${id}`;
+            return new ErrorResult(message);
         }
-        return new ErrorResult({message: `Couldn't find a Task`});
-    } catch (error) {
-        let message = 'Unable to delete Task';
-        if (error.name === 'CastError') {
-            message = `Couldn't find a Task.`;
+    }
+
+    async function findOne(query) {
+        const result = await database.findOne(query);
+
+        if (result === null) {
+            const message = 'Couldn\'t find a task';
+            return new ErrorResult(message);
         }
 
-        return new ErrorResult({message: message});
+        return new SuccessResult(result);
     }
-};
 
-const deleteMany = query => Task.deleteMany(query);
+    async function findMany(query) {
+        const tasks = await database.find(query);
+        return new SuccessResult(tasks);
+    }
 
-module.exports = {
-    create,
-    findOne,
-    findMany,
-    findById,
-    updateOne,
-    updateMany,
-    deleteOne,
-    deleteMany
-};
+    async function updateOne({query, updates}) {
+        try {
+            const result = await database.updateOne(query, updates);
+            if (result.n < 1 && result.nModified < 1) {
+                const message = 'Unable to find a task to be updated';
+                return new ErrorResult(message);
+            }
+
+            const updatedTask = await findOne(query);
+            const message = 'Task update successfully';
+            return updatedTask.withMessage(message);
+        } catch (error) {
+            const message = 'Could not update task';
+            return new ErrorResult(message);
+        }
+    }
+
+    async function updateMany({query, updates}) {
+        try {
+            const result = await database.updateMany(query, updates);
+            const message = `${result.nModified} tasks successfully updated`;
+            return new SuccessResult(null, {message: message});
+        } catch (error) {
+            const message = 'Tasks are not updated. Please check the query or the updates';
+            return new ErrorResult(message);
+        }
+    }
+
+    async function deleteOne(query) {
+        try {
+            const result = await database.deleteOne(query);
+
+            if (result.deletedCount < 1) {
+                const message = 'Couldn\'t find a Task';
+                return new ErrorResult(message);
+            }
+
+            const message = 'Task deleted successfully';
+            return new SuccessResult(null, {message: message});
+        } catch (error) {
+            const message = `Couldn't find a Task.`;
+            return new ErrorResult(message);
+        }
+    }
+
+    async function deleteMany(query) {
+        try {
+            const result = await database.deleteMany(query);
+
+            const message = `${result.deletedCount} tasks deleted successfully`;
+            return new SuccessResult(null, {message: message});
+        } catch (error) {
+            const message = 'Zero task deleted. Invalid query';
+            return new ErrorResult(message);
+        }
+    }
+}
+
+module.exports = (db) => makeTaskDatabase(db);
