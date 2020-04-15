@@ -1,30 +1,32 @@
 'use strict';
 
 const router = require('express').Router();
+const transform = require('../../config/request-transformer');
+
 const taskValidator = require('./task-validator');
-const taskController = require('./task-controller');
+const taskController = require('./task-di');
 
 router.post('/',
     taskValidator.validateTask,
-    taskController.create
+    transform(taskController.create)
 );
 
-router.get('/', taskController.getAll);
+router.get('/', transform(taskController.getAll));
 
 router.get('/:id',
     taskValidator.validateTaskId,
-    taskController.getById
+    transform(taskController.getById)
 );
 
 router.put('/:id',
     taskValidator.validateTaskId,
     taskValidator.validateTaskUpdates,
-    taskController.updateById
+    transform(taskController.updateById)
 );
 
 router.delete('/:id',
     taskValidator.validateTaskId,
-    taskController.deleteById
+    transform(taskController.deleteById)
 );
 
 module.exports = router;
