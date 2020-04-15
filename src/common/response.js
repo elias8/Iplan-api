@@ -1,6 +1,5 @@
-const {ErrorResult} = require("./result");
-const {SuccessResult} = require("./result");
-const {send, type} = require("../util/sender");
+const {Success, Failure} = require('./result');
+const {send, type} = require('../util/sender');
 
 class Response {
     constructor(res) {
@@ -12,15 +11,15 @@ class Response {
         if (this.sent) {
             throw 'You are trying to write after header is sent.';
         }
-        if (!(result instanceof SuccessResult) && !(result instanceof ErrorResult)) {
-            throw `${result} is not instance of SuccessResult of ErrorResult.`;
+        if (!(result instanceof Success) && !(result instanceof Failure)) {
+            throw `${result} is not instance of Success of Failure.`;
         }
 
         this.isSuccess = true;
         this.status = result.status;
         this.message = result.message;
 
-        if (result instanceof SuccessResult) {
+        if (result instanceof Success) {
             this.data = result.data;
             this.type = result.type;
         } else {

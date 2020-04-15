@@ -1,7 +1,6 @@
 'use strict';
 
-const {ErrorResult} = require("../../common/result");
-const {SuccessResult} = require("../../common/result");
+const {Success, Failure} = require('../../common/result');
 
 function makeTaskDatabase(database) {
     return Object.freeze({
@@ -17,20 +16,20 @@ function makeTaskDatabase(database) {
 
     async function insertOne(taskData) {
         const savedTask = await new database(taskData).save();
-        return new SuccessResult(savedTask);
+        return new Success(savedTask);
     }
 
     async function findById(id) {
         try {
             const result = await database.findById(id);
 
-            if (result) return new SuccessResult(result);
+            if (result) return new Success(result);
 
             const message = `Couldn't find a Task with id ${id}`;
-            return new ErrorResult(message);
+            return new Failure(message);
         } catch (error) {
             const message = `Couldn't find a Task with id ${id}`;
-            return new ErrorResult(message);
+            return new Failure(message);
         }
     }
 
@@ -39,15 +38,15 @@ function makeTaskDatabase(database) {
 
         if (result === null) {
             const message = 'Couldn\'t find a task';
-            return new ErrorResult(message);
+            return new Failure(message);
         }
 
-        return new SuccessResult(result);
+        return new Success(result);
     }
 
     async function findMany(query) {
         const tasks = await database.find(query);
-        return new SuccessResult(tasks);
+        return new Success(tasks);
     }
 
     async function updateOne({query, updates}) {
@@ -55,7 +54,7 @@ function makeTaskDatabase(database) {
             const result = await database.updateOne(query, updates);
             if (result.n < 1 && result.nModified < 1) {
                 const message = 'Unable to find a task to be updated';
-                return new ErrorResult(message);
+                return new Failure(message);
             }
 
             const updatedTask = await findOne(query);
@@ -63,7 +62,7 @@ function makeTaskDatabase(database) {
             return updatedTask.withMessage(message);
         } catch (error) {
             const message = 'Could not update task';
-            return new ErrorResult(message);
+            return new Failure(message);
         }
     }
 
@@ -71,10 +70,10 @@ function makeTaskDatabase(database) {
         try {
             const result = await database.updateMany(query, updates);
             const message = `${result.nModified} tasks successfully updated`;
-            return new SuccessResult(null, {message: message});
+            return new Success(null, {message: message});
         } catch (error) {
             const message = 'Tasks are not updated. Please check the query or the updates';
-            return new ErrorResult(message);
+            return new Failure(message);
         }
     }
 
@@ -84,14 +83,14 @@ function makeTaskDatabase(database) {
 
             if (result.deletedCount < 1) {
                 const message = 'Couldn\'t find a Task';
-                return new ErrorResult(message);
+                return new Failure(message);
             }
 
             const message = 'Task deleted successfully';
-            return new SuccessResult(null, {message: message});
+            return new Success(null, {message: message});
         } catch (error) {
             const message = `Couldn't find a Task.`;
-            return new ErrorResult(message);
+            return new Failure(message);
         }
     }
 
@@ -100,10 +99,10 @@ function makeTaskDatabase(database) {
             const result = await database.deleteMany(query);
 
             const message = `${result.deletedCount} tasks deleted successfully`;
-            return new SuccessResult(null, {message: message});
+            return new Success(null, {message: message});
         } catch (error) {
             const message = 'Zero task deleted. Invalid query';
-            return new ErrorResult(message);
+            return new Failure(message);
         }
     }
 }

@@ -1,8 +1,7 @@
 const dbHandler = require('../../util/db-handler');
 const makeTaskDal = require('../../../src/app/task/task-dal');
 const taskModel = require('../../../src/app/task/task-model');
-const {ErrorResult} = require("../../../src/common/result");
-const {SuccessResult} = require("../../../src/common/result");
+const {Success, Failure} = require('../../../src/common/result');
 
 const taskDal = makeTaskDal(taskModel);
 
@@ -27,7 +26,7 @@ describe('TaskDal', () => {
             const result = await taskDal.insertOne(task);
 
             // ASSERT
-            expect(result).toBeInstanceOf(SuccessResult);
+            expect(result).toBeInstanceOf(Success);
             expect(result.data).toMatchObject(task);
         });
     });
@@ -47,7 +46,7 @@ describe('TaskDal', () => {
             const result = await taskDal.findOne(task);
 
             // ASSERT
-            expect(result).toBeInstanceOf(SuccessResult);
+            expect(result).toBeInstanceOf(Success);
             expect(result.data).toEqual(expect.objectContaining(task));
         });
 
@@ -59,7 +58,7 @@ describe('TaskDal', () => {
             const result = await taskDal.findOne(task);
 
             // ASSERT
-            expect(result).toBeInstanceOf(ErrorResult);
+            expect(result).toBeInstanceOf(Failure);
             expect(result.message).toEqual(message);
         });
     });
@@ -78,7 +77,7 @@ describe('TaskDal', () => {
             const result = await taskDal.findById(savedTask._id);
 
             // Assert
-            expect(result).toBeInstanceOf(SuccessResult);
+            expect(result).toBeInstanceOf(Success);
             expect(result.data).toMatchObject(task);
             expect(savedTask).toMatchObject(task);
         });
@@ -92,7 +91,7 @@ describe('TaskDal', () => {
             const result = await taskDal.findById(taskId);
 
             // ASSERT
-            expect(result).toBeInstanceOf(ErrorResult);
+            expect(result).toBeInstanceOf(Failure);
             expect(result.message).toEqual(message);
         });
 
@@ -105,7 +104,7 @@ describe('TaskDal', () => {
             const result = await taskDal.findById(fakeId);
 
             // ASSERT
-            expect(result).toBeInstanceOf(ErrorResult);
+            expect(result).toBeInstanceOf(Failure);
             expect(result.message).toEqual(errorMessage);
         });
     });
@@ -131,7 +130,7 @@ describe('TaskDal', () => {
             const result = await taskDal.findMany();
 
             // ASSERT
-            expect(result).toBeInstanceOf(SuccessResult);
+            expect(result).toBeInstanceOf(Success);
             expect(result.data).toHaveLength(2);
             expect(result.data[0]).toEqual(expect.objectContaining(task1));
             expect(result.data[1]).toEqual(expect.objectContaining(task2));
@@ -160,7 +159,7 @@ describe('TaskDal', () => {
             const result = await taskDal.updateOne({query: query, updates: updates});
 
             // ASSERT
-            expect(result).toBeInstanceOf(SuccessResult);
+            expect(result).toBeInstanceOf(Success);
             expect(result.message).toEqual(message);
             expect(result.data).toEqual(expect.objectContaining(updates));
         });
@@ -174,7 +173,7 @@ describe('TaskDal', () => {
             const result = await taskDal.updateOne({query: query});
 
             // ASSERT
-            expect(result).toBeInstanceOf(ErrorResult);
+            expect(result).toBeInstanceOf(Failure);
             expect(result.message).toEqual(message);
         });
 
@@ -192,7 +191,7 @@ describe('TaskDal', () => {
             const result = await taskDal.updateOne({query: query, updates: task});
 
             // ASSERT
-            expect(result).toBeInstanceOf(ErrorResult);
+            expect(result).toBeInstanceOf(Failure);
             expect(result.message).toEqual(message);
         });
     });
@@ -221,7 +220,7 @@ describe('TaskDal', () => {
             const result = await taskDal.updateMany({updates: updates});
 
             // ASSERT
-            expect(result).toBeInstanceOf(SuccessResult);
+            expect(result).toBeInstanceOf(Success);
             expect(result.message).toEqual(message);
         });
 
@@ -238,7 +237,7 @@ describe('TaskDal', () => {
             const result = await taskDal.updateMany({query: query, updates: updates});
 
             // ASSERT
-            expect(result).toBeInstanceOf(ErrorResult);
+            expect(result).toBeInstanceOf(Failure);
             expect(result.message).toEqual(message);
         });
     });
@@ -259,7 +258,7 @@ describe('TaskDal', () => {
             const result = await taskDal.deleteOne(task);
 
             // ASSERT
-            expect(result).toBeInstanceOf(SuccessResult);
+            expect(result).toBeInstanceOf(Success);
             expect(result.message).toEqual(message);
         });
 
@@ -274,7 +273,7 @@ describe('TaskDal', () => {
             const result = await taskDal.deleteOne(task);
 
             // ASSERT
-            expect(result).toBeInstanceOf(ErrorResult);
+            expect(result).toBeInstanceOf(Failure);
             expect(result.message).toEqual(message);
         });
 
@@ -289,7 +288,7 @@ describe('TaskDal', () => {
             const result = await taskDal.deleteOne(task);
 
             // ASSERT
-            expect(result).toBeInstanceOf(ErrorResult);
+            expect(result).toBeInstanceOf(Failure);
             expect(result.message).toEqual(message);
 
         });
@@ -317,7 +316,7 @@ describe('TaskDal', () => {
             const result = await taskDal.deleteMany();
 
             // ASSERT
-            expect(result).toBeInstanceOf(SuccessResult);
+            expect(result).toBeInstanceOf(Success);
             expect(result.message).toEqual(message);
         });
 
@@ -333,7 +332,7 @@ describe('TaskDal', () => {
             const result = await taskDal.deleteMany(query);
 
             // ASSERT
-            expect(result).toBeInstanceOf(ErrorResult);
+            expect(result).toBeInstanceOf(Failure);
             expect(result.message).toEqual(message);
         });
 
