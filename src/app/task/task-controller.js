@@ -1,4 +1,5 @@
 'use strict';
+const {response} = require('../../common/response');
 
 module.exports = function TaskController(taskService) {
     return Object.freeze({
@@ -9,29 +10,58 @@ module.exports = function TaskController(taskService) {
         deleteById,
     });
 
-    function create(request) {
+    async function create(request) {
         const taskData = request.body;
-        return taskService.createTask(taskData);
+        const result = await taskService.createTask(taskData);
+
+        return response(request)
+            .fromResult(result)
+            .setType('Task')
+            .setStatusOnFailure(404)
+            .setStatusOnSuccess(201);
     }
 
-    function getAll() {
-        return taskService.getAllTasks();
+    async function getAll(request) {
+        const result = await taskService.getAllTasks();
+
+        return response(request)
+            .fromResult(result)
+            .setType('Tasks')
+            .setStatusOnFailure(404)
+            .setStatusOnSuccess(200);
     }
 
-    function getById(request) {
+    async function getById(request) {
         const taskId = request.params.id;
-        return taskService.getTaskById(taskId);
+        const result = await taskService.getTaskById(taskId);
+
+        return response(request)
+            .fromResult(result)
+            .setType('Task')
+            .setStatusOnFailure(404)
+            .setStatusOnSuccess(200);
     }
 
-    function updateById(request) {
+    async function updateById(request) {
         const taskId = request.params.id;
         const taskUpdates = request.body;
-        return taskService.updateTaskById(taskId, taskUpdates);
+        const result = await taskService.updateTaskById(taskId, taskUpdates);
+
+        return response()
+            .fromResult(result)
+            .setType('Task')
+            .setStatusOnSuccess(200)
+            .setStatusOnFailure(404)
     }
 
-    function deleteById(request) {
+    async function deleteById(request) {
         const taskId = request.params.id;
-        return taskService.deleteById(taskId);
+        const result = await taskService.deleteById(taskId);
+
+        return response(request)
+            .fromResult(result)
+            .setStatusOnFailure(404)
+            .setStatusOnSuccess(200)
     }
 };
 

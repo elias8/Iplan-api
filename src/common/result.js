@@ -1,19 +1,27 @@
 class Result {
     fold({onSuccess, onFailure}) {
         if (this.isSuccess()) {
+            return handleSuccess(this);
+        } else if (this.isFailure()) {
+            return handleFailure();
+        } else {
+            return null;
+        }
+
+        function handleSuccess(successResult) {
             if (typeof onSuccess === 'function') {
-                return onSuccess(this.getData(), this);
+                return onSuccess(successResult.getData(), successResult);
             } else {
                 throw Error(`Error: expected function instead got ${typeof onSuccess}`);
             }
-        } else if (this.isFailure()) {
+        }
+
+        function handleFailure(failureResult) {
             if (typeof onFailure === 'function') {
-                return onFailure(this);
+                return onFailure(failureResult);
             } else {
                 throw Error(`Error: expected function instead got ${typeof onFailure}`);
             }
-        } else {
-            return null;
         }
     }
 

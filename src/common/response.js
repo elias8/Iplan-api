@@ -1,9 +1,8 @@
 const {Success, Failure} = require('./result');
-const {send, type} = require('../util/sender');
 
 class Response {
-    constructor(res) {
-        this.res = res;
+    constructor(req) {
+        this.req = req;
         this.sent = false;
     }
 
@@ -16,12 +15,10 @@ class Response {
         }
 
         this.isSuccess = true;
-        this.status = result.status;
-        this.message = result.message;
+        this.message = result.getMessage();
 
         if (result instanceof Success) {
             this.data = result.data;
-            this.type = result.type;
         } else {
             this.isSuccess = false;
         }
@@ -29,36 +26,35 @@ class Response {
         return this;
     }
 
-    withType(type) {
+    setType(type) {
         this.type = type;
         return this;
     }
 
-    withSuccessStatus(status) {
-        if (this.isSuccess && !this.status) {
-            this.status = status;
-        }
+    setStatusOnSuccess(status) {
+        if (this.isSuccess) this.status = status;
         return this;
     }
 
-    withErrorStatus(status) {
-        if (!this.isSuccess && !this.status) {
-            this.status = status;
-        }
+    setStatusOnFailure(status) {
+        if (!this.isSuccess) this.status = status;
         return this;
     }
 
-    end() {
+    getRequest() {
+        return this.req;
+    }
+
+    hasNext() {
+        return this.shouldNext;
+    }
+
+    next() {
         this.sent = true;
-
-        if (this.isSuccess) {
-            send(this.res, {data: this.data, message: this.message, type: this.type, status: this.status});
-        } else {
-            send(this.res, {type: type.ERROR, message: this.message, status: this.status});
-        }
+        this.shouldNext = true;
+        return this;
     }
 }
 
-exports.response = (res) => new Response(res);
-
-
+const response = (res) => new Response(res);
+module.exports = {response, Response};

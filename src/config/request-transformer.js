@@ -1,4 +1,5 @@
-const {response} = require("../../src/common/response");
+const {send} = require('../util/sender');
+const {Response} = require('../common/response');
 
 module.exports = function requestTransformer(controller) {
     return async (req, res, next) => {
@@ -14,16 +15,29 @@ module.exports = function requestTransformer(controller) {
             }
         };
 
-        const result = await controller(request);
-        if (result.hasNext) {
-            req.body = result.body;
-            req.path = result.path;
-            req.query = result.query;
-            req.params = result.params;
-            req.method = result.method;
-            return next();
+        const response = await controller(request);
+
+        if (response instanceof Response) {
+            if (response.hasNext()) {
+                const request = response.getRequest();
+                req.body = request.body;
+                req.path = request.path;
+                req.query = request.query;
+                req.params = request.params;
+                req.method = request.method;
+                return next();
+            }
+        } else {
+            if (response.hasNext) {
+                req.body = response.body;
+                req.path = response.path;
+                req.query = response.query;
+                req.params = response.params;
+                req.method = response.method;
+                return next();
+            }
         }
 
-        response(res).fromResult(result).end();
+        send(res, {data: response.data, type: response.type, status: response.status, message: response.message});
     };
 };
