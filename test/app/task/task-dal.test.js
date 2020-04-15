@@ -50,16 +50,14 @@ describe('TaskDal', () => {
             expect(result.data).toEqual(expect.objectContaining(task));
         });
 
-        it('should return error when query doesn\'t match any task', async () => {
+        it('should return Failure when query doesn\'t match any task', async () => {
             // ARRANGE
-            const message = 'Couldn\'t find a task';
 
             // ACT
             const result = await taskDal.findOne(task);
 
             // ASSERT
             expect(result).toBeInstanceOf(Failure);
-            expect(result.message).toEqual(message);
         });
     });
 
@@ -71,41 +69,37 @@ describe('TaskDal', () => {
                 status: 'Incomplete',
                 note: 'task note',
             };
-            const savedTask = (await taskDal.insertOne(task)).data;
+            const savedTask = (await taskDal.insertOne(task)).getData();
 
             // Act
             const result = await taskDal.findById(savedTask._id);
 
             // Assert
             expect(result).toBeInstanceOf(Success);
-            expect(result.data).toMatchObject(task);
+            expect(result.getData()).toMatchObject(task);
             expect(savedTask).toMatchObject(task);
         });
 
-        it('should return error when id doesn\'t match any task id', async () => {
+        it('should return Failure when id doesn\'t match any task id', async () => {
             // ARRANGE
             const taskId = '5e7da13ff820d67f179d0654';
-            const message = `Couldn't find a Task with id ${taskId}`;
 
             // ACT
             const result = await taskDal.findById(taskId);
 
             // ASSERT
             expect(result).toBeInstanceOf(Failure);
-            expect(result.message).toEqual(message);
         });
 
-        it('should return error when invalid id is provided', async () => {
+        it('should return Failure when invalid id is provided', async () => {
             // ARRANGE
             const fakeId = 'fake-id';
-            const errorMessage = `Couldn't find a Task with id ${fakeId}`;
 
             // ACT
             const result = await taskDal.findById(fakeId);
 
             // ASSERT
             expect(result).toBeInstanceOf(Failure);
-            expect(result.message).toEqual(errorMessage);
         });
     });
 
@@ -131,9 +125,9 @@ describe('TaskDal', () => {
 
             // ASSERT
             expect(result).toBeInstanceOf(Success);
-            expect(result.data).toHaveLength(2);
-            expect(result.data[0]).toEqual(expect.objectContaining(task1));
-            expect(result.data[1]).toEqual(expect.objectContaining(task2));
+            expect(result.getData()).toHaveLength(2);
+            expect(result.getData()[0]).toEqual(expect.objectContaining(task1));
+            expect(result.getData()[1]).toEqual(expect.objectContaining(task2));
         });
     });
 
@@ -153,33 +147,29 @@ describe('TaskDal', () => {
 
             const savedTaskResult = await taskDal.insertOne(task);
             const query = {_id: savedTaskResult.data._id};
-            const message = 'Task update successfully';
 
             // ACT
-            const result = await taskDal.updateOne({query: query, updates: updates});
+            await taskDal.updateOne({query: query, updates: updates});
+            const result = await taskDal.findOne(query);
 
             // ASSERT
             expect(result).toBeInstanceOf(Success);
-            expect(result.message).toEqual(message);
-            expect(result.data).toEqual(expect.objectContaining(updates));
+            expect(result.getData()).toEqual(expect.objectContaining(updates));
         });
 
-        it('should return error when task doesn\'t exist', async () => {
+        it('should return Failure when task doesn\'t exist', async () => {
             // ARRANGE
             const query = {_id: '5e7d2d3867730855cfd33ba8'};
-            const message = 'Unable to find a task to be updated';
 
             // ACT
             const result = await taskDal.updateOne({query: query});
 
             // ASSERT
             expect(result).toBeInstanceOf(Failure);
-            expect(result.message).toEqual(message);
         });
 
-        it('should return error when invalid query is provided', async () => {
+        it('should return Failure when invalid query is provided', async () => {
             // ARRANGE
-            const message = 'Could not update task';
             const query = {_id: 'invalid-id'};
             const task = {
                 title: 'task title',
@@ -192,7 +182,6 @@ describe('TaskDal', () => {
 
             // ASSERT
             expect(result).toBeInstanceOf(Failure);
-            expect(result.message).toEqual(message);
         });
     });
 
@@ -214,31 +203,28 @@ describe('TaskDal', () => {
             await taskDal.insertOne(task2);
 
             const updates = {status: 'InProgress'};
-            const message = `2 tasks successfully updated`;
 
             // ACT
             const result = await taskDal.updateMany({updates: updates});
 
             // ASSERT
             expect(result).toBeInstanceOf(Success);
-            expect(result.message).toEqual(message);
+            expect(result.getData()).toEqual(2);
         });
 
-        it('should return error when query contains invalid values', async () => {
+        it('should return Failure when query contains invalid values', async () => {
             // ARRANGE
             await taskDal.insertOne(task1);
             await taskDal.insertOne(task2);
 
             const query = {_id: 'invalid-id'};
             const updates = {status: 'InProgress'};
-            const message = 'Tasks are not updated. Please check the query or the updates';
 
             // ACT
             const result = await taskDal.updateMany({query: query, updates: updates});
 
             // ASSERT
             expect(result).toBeInstanceOf(Failure);
-            expect(result.message).toEqual(message);
         });
     });
 
@@ -251,7 +237,6 @@ describe('TaskDal', () => {
 
         it('should delete a task', async () => {
             // ARRANGE
-            const message = 'Task deleted successfully';
             await taskDal.insertOne(task);
 
             // ACT
@@ -259,12 +244,10 @@ describe('TaskDal', () => {
 
             // ASSERT
             expect(result).toBeInstanceOf(Success);
-            expect(result.message).toEqual(message);
         });
 
-        it('should return error when query doesn\'t match any task', async () => {
+        it('should return Failure when query doesn\'t match any task', async () => {
             // ARRANGE
-            const message = `Couldn't find a Task`;
             await taskDal.insertOne(task);
 
             task.title = 'other title';
@@ -274,12 +257,10 @@ describe('TaskDal', () => {
 
             // ASSERT
             expect(result).toBeInstanceOf(Failure);
-            expect(result.message).toEqual(message);
         });
 
-        it('should return error when query contains invalid arguments', async () => {
+        it('should return Failure when query contains invalid arguments', async () => {
             // ARRANGE
-            const message = `Couldn't find a Task.`;
             await taskDal.insertOne(task);
 
             task._id = 'invalid-id';
@@ -289,8 +270,6 @@ describe('TaskDal', () => {
 
             // ASSERT
             expect(result).toBeInstanceOf(Failure);
-            expect(result.message).toEqual(message);
-
         });
     });
 
@@ -308,7 +287,6 @@ describe('TaskDal', () => {
 
         it('should delete all tasks', async () => {
             // ARRANGE
-            const message = `${2} tasks deleted successfully`;
             await taskDal.insertOne(task1);
             await taskDal.insertOne(task2);
 
@@ -317,12 +295,11 @@ describe('TaskDal', () => {
 
             // ASSERT
             expect(result).toBeInstanceOf(Success);
-            expect(result.message).toEqual(message);
+            expect(result.getData()).toEqual(2);
         });
 
-        it('should return error when query contains invalid values', async () => {
+        it('should return Failure when query contains invalid values', async () => {
             // ARRANGE
-            const message = 'Zero task deleted. Invalid query';
             const query = {_id: 'invalid-id'};
 
             await taskDal.insertOne(task1);
@@ -333,8 +310,6 @@ describe('TaskDal', () => {
 
             // ASSERT
             expect(result).toBeInstanceOf(Failure);
-            expect(result.message).toEqual(message);
         });
-
     });
 });

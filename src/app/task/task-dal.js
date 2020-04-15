@@ -22,26 +22,15 @@ function makeTaskDatabase(database) {
     async function findById(id) {
         try {
             const result = await database.findById(id);
-
-            if (result) return new Success(result);
-
-            const message = `Couldn't find a Task with id ${id}`;
-            return new Failure(message);
-        } catch (error) {
-            const message = `Couldn't find a Task with id ${id}`;
-            return new Failure(message);
+            return result ? new Success(result) : new Failure();
+        } catch (e) {
+            return new Failure();
         }
     }
 
     async function findOne(query) {
         const result = await database.findOne(query);
-
-        if (result === null) {
-            const message = 'Couldn\'t find a task';
-            return new Failure(message);
-        }
-
-        return new Success(result);
+        return result ? new Success(result) : new Failure();
     }
 
     async function findMany(query) {
@@ -52,57 +41,40 @@ function makeTaskDatabase(database) {
     async function updateOne({query, updates}) {
         try {
             const result = await database.updateOne(query, updates);
-            if (result.n < 1 && result.nModified < 1) {
-                const message = 'Unable to find a task to be updated';
-                return new Failure(message);
-            }
-
-            const updatedTask = await findOne(query);
-            const message = 'Task update successfully';
-            return updatedTask.withMessage(message);
-        } catch (error) {
-            const message = 'Could not update task';
-            return new Failure(message);
+            const nModified = result.nModified;
+            return nModified > 0 ? new Success(nModified) : new Failure();
+        } catch (e) {
+            return new Failure();
         }
     }
 
     async function updateMany({query, updates}) {
         try {
             const result = await database.updateMany(query, updates);
-            const message = `${result.nModified} tasks successfully updated`;
-            return new Success(null, {message: message});
-        } catch (error) {
-            const message = 'Tasks are not updated. Please check the query or the updates';
-            return new Failure(message);
+            const nModified = result.nModified;
+            return new Success(nModified);
+        } catch (e) {
+            return new Failure();
         }
     }
 
     async function deleteOne(query) {
         try {
             const result = await database.deleteOne(query);
-
-            if (result.deletedCount < 1) {
-                const message = 'Couldn\'t find a Task';
-                return new Failure(message);
-            }
-
-            const message = 'Task deleted successfully';
-            return new Success(null, {message: message});
-        } catch (error) {
-            const message = `Couldn't find a Task.`;
-            return new Failure(message);
+            const deletedCount = result.deletedCount;
+            return deletedCount > 0 ? new Success(deletedCount) : new Failure();
+        } catch (e) {
+            return new Failure();
         }
     }
 
     async function deleteMany(query) {
         try {
             const result = await database.deleteMany(query);
-
-            const message = `${result.deletedCount} tasks deleted successfully`;
-            return new Success(null, {message: message});
-        } catch (error) {
-            const message = 'Zero task deleted. Invalid query';
-            return new Failure(message);
+            const deletedCount = result.deletedCount;
+            return new Success(deletedCount);
+        } catch (e) {
+            return new Failure();
         }
     }
 }
