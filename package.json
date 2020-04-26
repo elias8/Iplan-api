@@ -7,7 +7,7 @@
     "email": "eliasandualem8gmail.com"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "start": "pm2-runtime start ecosystem.config.js --env development"
   },
   "dependencies": {
