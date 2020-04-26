@@ -38,8 +38,30 @@ class Result {
         return this;
     }
 
+    getCode() {
+        return this.code;
+    }
+
     getMessage() {
         return this.message;
+    }
+
+    getType() {
+        return this.type;
+    }
+
+    setCode(code) {
+        if (isNaN(code)) {
+            throw Error(`Error: code must be a number. But found ${typeof code} code`);
+        }
+
+        this.code = code;
+        return this;
+    }
+
+    setType(type) {
+        this.type = type;
+        return this;
     }
 }
 
