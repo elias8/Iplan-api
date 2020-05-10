@@ -3,7 +3,7 @@ class Result {
         if (this.isSuccess()) {
             return handleSuccess(this);
         } else if (this.isFailure()) {
-            return handleFailure();
+            return handleFailure(this);
         } else {
             return null;
         }
