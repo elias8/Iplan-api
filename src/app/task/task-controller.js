@@ -51,7 +51,7 @@ module.exports = function TaskController(taskService) {
             .fromResult(result)
             .setType('Task')
             .setStatusOnSuccess(200)
-            .setStatusOnFailure(404)
+            .setStatusOnFailure(404);
     }
 
     async function deleteById(request) {
@@ -61,7 +61,7 @@ module.exports = function TaskController(taskService) {
         return response(request)
             .fromResult(result)
             .setStatusOnFailure(404)
-            .setStatusOnSuccess(200)
+            .setStatusOnSuccess(200);
     }
 };
 
