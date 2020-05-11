@@ -3,7 +3,7 @@
 const {Success, Failure} = require('../../common/result');
 
 function makeTaskDatabase(database) {
-    return Object.freeze({
+    return {
         insertOne,
         findOne,
         findById,
@@ -12,7 +12,7 @@ function makeTaskDatabase(database) {
         updateMany,
         deleteOne,
         deleteMany,
-    });
+    };
 
     async function insertOne(taskData) {
         const savedTask = await new database(taskData).save();
@@ -40,7 +40,7 @@ function makeTaskDatabase(database) {
 
     async function updateOne({query, updates}) {
         try {
-            const result = await database.updateOne(query, updates);
+            const result    = await database.updateOne(query, updates);
             const nModified = result.nModified;
             return nModified > 0 ? new Success(nModified) : new Failure();
         } catch (e) {
@@ -50,7 +50,7 @@ function makeTaskDatabase(database) {
 
     async function updateMany({query, updates}) {
         try {
-            const result = await database.updateMany(query, updates);
+            const result    = await database.updateMany(query, updates);
             const nModified = result.nModified;
             return new Success(nModified);
         } catch (e) {
@@ -60,7 +60,7 @@ function makeTaskDatabase(database) {
 
     async function deleteOne(query) {
         try {
-            const result = await database.deleteOne(query);
+            const result       = await database.deleteOne(query);
             const deletedCount = result.deletedCount;
             return deletedCount > 0 ? new Success(deletedCount) : new Failure();
         } catch (e) {
@@ -70,7 +70,7 @@ function makeTaskDatabase(database) {
 
     async function deleteMany(query) {
         try {
-            const result = await database.deleteMany(query);
+            const result       = await database.deleteMany(query);
             const deletedCount = result.deletedCount;
             return new Success(deletedCount);
         } catch (e) {
