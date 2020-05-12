@@ -13,18 +13,18 @@ router.post('/',
 
 router.get('/', transform(taskController.getAll));
 
-router.get('/:id',
+router.get('/:taskId',
     taskValidator.validateTaskId,
     transform(taskController.getById)
 );
 
-router.put('/:id',
+router.put('/:taskId',
     taskValidator.validateTaskId,
     taskValidator.validateTaskUpdates,
     transform(taskController.updateById)
 );
 
-router.delete('/:id',
+router.delete('/:taskId',
     taskValidator.validateTaskId,
     transform(taskController.deleteById)
 );

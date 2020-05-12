@@ -2,16 +2,19 @@ class Result {
     fold({onSuccess, onFailure}) {
         if (this.isSuccess()) {
             return handleSuccess(this);
-        } else if (this.isFailure()) {
+        }
+        else if (this.isFailure()) {
             return handleFailure(this);
-        } else {
+        }
+        else {
             return null;
         }
 
         function handleSuccess(successResult) {
             if (typeof onSuccess === 'function') {
                 return onSuccess(successResult.getData(), successResult);
-            } else {
+            }
+            else {
                 throw Error(`Error: expected function instead got ${typeof onSuccess}`);
             }
         }
@@ -19,7 +22,8 @@ class Result {
         function handleFailure(failureResult) {
             if (typeof onFailure === 'function') {
                 return onFailure(failureResult);
-            } else {
+            }
+            else {
                 throw Error(`Error: expected function instead got ${typeof onFailure}`);
             }
         }
@@ -66,9 +70,11 @@ class Result {
 }
 
 class Success extends Result {
-    constructor(data = null, {message} = {}) {
+    constructor(data = null, {status, message, type} = {}) {
         super();
-        this.data = data;
+        this.type    = type;
+        this.data    = data;
+        this.status  = status;
         this.message = message;
     }
 
@@ -78,8 +84,9 @@ class Success extends Result {
 }
 
 class Failure extends Result {
-    constructor(message = null) {
+    constructor({status, message} = {}) {
         super();
+        this.status  = status;
         this.message = message;
     }
 }

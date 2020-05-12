@@ -35,8 +35,8 @@ module.exports = function TaskService(database) {
     }
 
     async function updateTaskById(taskId, task) {
-        const taskExists = await getTaskById(taskId);
-        if (taskExists.isFailure()) return taskExists;
+        const result = await getTaskById(taskId);
+        if (result.isFailure()) return result;
 
         const query        = {_id: taskId};
         const updateResult = await database.updateOne({
